@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>择适 Zeshi · V0.1 交互原型</title>
+<style>
+:root{
+  --bg:#f6f7fb; --surface:#ffffff; --surface2:#f1f3f7; --text:#181b20; --muted:#69707d;
+  --line:#e4e7ec; --brand:#1f6f5f; --brand2:#e7f2ef; --warn:#a96613; --warnbg:#fff7e8;
+  --bad:#a53c3c; --badbg:#fff0f0; --good:#1f7a54; --goodbg:#eaf7f1; --shadow:0 12px 35px rgba(24,27,32,.08);
+  --radius:18px; --radius2:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,"PingFang SC","Microsoft YaHei",system-ui,sans-serif}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;display:grid;grid-template-rows:64px 1fr}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:12px;font-weight:750}
+.logo{width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,#1f6f5f,#63a899);display:grid;place-items:center;color:#fff;font-weight:800}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:11px;margin-top:1px}
+.top-actions{display:flex;gap:10px;align-items:center}
+.pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;color:var(--muted)}
+.avatar{width:34px;height:34px;border-radius:50%;background:#20242b;color:#fff;display:grid;place-items:center;font-size:13px}
+.main{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:calc(100vh - 64px)}
+.sidebar{padding:22px 16px;border-right:1px solid var(--line);background:#fbfcfd}
+.side-title{font-size:12px;color:#8a909a;margin:8px 10px;text-transform:uppercase;letter-spacing:.08em}
+.nav{display:flex;flex-direction:column;gap:6px}
+.nav button{border:0;background:transparent;padding:11px 12px;text-align:left;border-radius:12px;color:#4f5663}
+.nav button.active{background:#eaf3f1;color:#164f44;font-weight:700}
+.history{margin-top:22px}
+.history-card{padding:11px 12px;border-radius:12px;margin-top:6px;color:#4f5663;font-size:13px}
+.history-card:hover{background:#f0f2f5}
+.content{padding:28px;max-width:1500px;width:100%;margin:0 auto}
+.page{display:none}.page.active{display:block}
+.hero{display:grid;grid-template-columns:1.25fr .75fr;gap:24px;align-items:stretch}
+.hero-card,.glass-card,.panel,.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.hero-card{padding:38px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 10px;background:var(--brand2);color:var(--brand);border-radius:999px;font-size:12px;font-weight:700}
+h1{font-size:42px;line-height:1.08;margin:20px 0 10px;letter-spacing:-.03em}
+.sub{color:var(--muted);font-size:16px;line-height:1.7;max-width:700px}
+.askbox{margin-top:28px;border:1px solid #d8dde3;border-radius:18px;padding:14px;background:#fbfcfd}
+.askbox textarea{width:100%;min-height:92px;border:0;resize:none;outline:none;background:transparent;font-size:16px;line-height:1.55}
+.ask-actions{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 10px;font-size:12px;color:#5f6672}
+.primary{border:0;background:var(--brand);color:#fff;border-radius:12px;padding:11px 16px;font-weight:700}
+.secondary{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;color:#424853}
+.glass-card{padding:24px;background:linear-gradient(180deg,#fff,#f7fbfa)}
+.stat{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+.stat:last-child{border-bottom:0}
+.icon{width:36px;height:36px;border-radius:10px;background:#edf4f2;color:var(--brand);display:grid;place-items:center;font-weight:800}
+.stat b{display:block;margin-bottom:4px}.stat span{font-size:13px;color:var(--muted)}
+.scenarios{margin-top:24px}
+.section-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:14px}
+.section-head h2{margin:0;font-size:20px}.section-head p{margin:0;color:var(--muted);font-size:13px}
+.scenario-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.scenario{padding:18px;background:#fff;border:1px solid var(--line);border-radius:16px}
+.scenario h3{margin:10px 0 6px;font-size:16px}.scenario p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+.workspace{display:grid;grid-template-columns:380px minmax(0,1fr);gap:18px;align-items:start}
+.chat{background:#fff;border:1px solid var(--line);border-radius:var(--radius);height:calc(100vh - 120px);display:grid;grid-template-rows:auto 1fr auto;position:sticky;top:92px}
+.chat-head{padding:16px 18px;border-bottom:1px solid var(--line)}
+.chat-head b{display:block}.chat-head span{font-size:12px;color:var(--muted)}
+.messages{padding:18px;overflow:auto}
+.msg{max-width:88%;padding:11px 13px;border-radius:14px;margin-bottom:12px;font-size:13px;line-height:1.6}
+.msg.ai{background:#f2f5f4;border:1px solid #e2ebe8}
+.msg.user{margin-left:auto;background:#20252b;color:#fff}
+.chat-input{padding:14px;border-top:1px solid var(--line);display:flex;gap:8px}
+.chat-input input{flex:1;border:1px solid var(--line);border-radius:12px;padding:11px 12px;outline:none}
+.workboard{display:flex;flex-direction:column;gap:14px;padding-bottom:60px}
+.panel{padding:18px}
+.panel h3{margin:0 0 14px;font-size:16px}
+.kicker{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.req-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.req-item{border:1px solid var(--line);background:#fbfcfd;border-radius:12px;padding:12px}
+.req-item span{display:block;font-size:11px;color:var(--muted);margin-bottom:6px}
+.req-item b{font-size:13px}
+.progress{height:8px;background:#edf0f3;border-radius:999px;overflow:hidden}.progress>i{display:block;height:100%;width:72%;background:var(--brand)}
+.alert{padding:13px 14px;border-radius:12px;font-size:13px;display:flex;gap:10px;align-items:flex-start;margin-top:8px}
+.alert.good{background:var(--goodbg);color:#185e42}.alert.warn{background:var(--warnbg);color:#7a4d0d}.alert.bad{background:var(--badbg);color:#7e2b2b}
+.products{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.product{border:1px solid var(--line);border-radius:16px;padding:14px;background:#fff}
+.product .thumb{height:120px;border-radius:12px;background:linear-gradient(135deg,#f0f2f5,#e7ecea);display:grid;place-items:center;color:#7b828d;font-size:12px}
+.score{display:inline-flex;margin:12px 0 8px;background:#eaf5f1;color:#17614f;border-radius:999px;padding:5px 8px;font-size:12px;font-weight:700}
+.product h4{margin:0 0 6px;font-size:14px}.price{font-size:20px;font-weight:800;margin:8px 0}
+.product ul{padding-left:18px;color:#5b626d;font-size:12px;line-height:1.7}
+.product .secondary{width:100%}
+.compare{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;overflow:hidden;border:1px solid var(--line);border-radius:14px}
+.compare th,.compare td{padding:11px;border-bottom:1px solid var(--line);text-align:center;background:#fff}
+.compare th:first-child,.compare td:first-child{text-align:left;background:#fafbfc;font-weight:650}
+.compare tr:last-child td{border-bottom:0}
+.report{padding:22px;background:linear-gradient(180deg,#fff,#f8fbfa);border:1px solid var(--line);border-radius:18px}
+.winner{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}
+.badge{background:#1f6f5f;color:#fff;border-radius:999px;padding:6px 10px;font-size:12px}
+.bigscore{font-size:44px;font-weight:850;letter-spacing:-.04em;color:var(--brand)}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.mini{padding:14px;border-radius:14px;background:#fff;border:1px solid var(--line)}
+.mini h4{margin:0 0 8px;font-size:13px}.mini p{margin:0;color:#5e6570;font-size:12px;line-height:1.6}
+.actionbar{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.fade{animation:fade .2s ease}@keyframes fade{from{opacity:.35;transform:translateY(4px)}to{opacity:1;transform:none}}
+.mobile-note{display:none}
+@media(max-width:1050px){
+  .main{grid-template-columns:1fr}.sidebar{display:none}.content{padding:16px}
+  .hero{grid-template-columns:1fr}.scenario-grid{grid-template-columns:1fr 1fr}
+  .workspace{grid-template-columns:1fr}.chat{height:auto;position:relative;top:auto}.messages{max-height:310px}
+  .products{grid-template-columns:1fr}.req-grid{grid-template-columns:1fr 1fr}
+  .mobile-note{display:block}
+}
+@media(max-width:640px){h1{font-size:32px}.scenario-grid,.req-grid,.twocol{grid-template-columns:1fr}.topbar{padding:0 14px}.content{padding:12px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><div class="logo">择</div><div>择适 Zeshi<small>AI Consumer Agent · V0.1 Prototype</small></div></div>
+    <div class="top-actions"><span class="pill">私测版</span><div class="avatar">PP</div></div>
+  </header>
+  <div class="main">
+    <aside class="sidebar">
+      <div class="side-title">Workspace</div>
+      <div class="nav">
+        <button class="active" onclick="showPage('home',this)">⌂ 首页</button>
+        <button onclick="startDecision(this)">✦ AI 决策工作台</button>
+        <button>◫ 我的决策</button>
+        <button>◎ 我的画像</button>
+        <button>⚙ 设置</button>
+      </div>
+      <div class="history">
+        <div class="side-title">最近决策</div>
+        <div class="history-card">即热式热水器 · 进行中</div>
+        <div class="history-card">路由器 · 已完成</div>
+        <div class="history-card">降噪耳机 · 已完成</div>
+      </div>
+    </aside>
+    <main class="content">
+      <section id="home" class="page active">
+        <div class="hero">
+          <div class="hero-card">
+            <span class="eyebrow">✦ AI 购买决策 Agent</span>
+            <h1>今天想买什么？</h1>
+            <p class="sub">不用先懂参数。告诉我你想解决什么问题，我会先帮你补齐关键条件、识别风险，再去研究真正适合你的商品。</p>
+            <div class="askbox">
+              <textarea id="homeInput">刚搬家，预算 800，想买一台即热式热水器，两个人用。</textarea>
+              <div class="ask-actions">
+                <div class="chips"><span class="chip">上传商品链接</span><span class="chip">上传截图</span></div>
+                <button class="primary" onclick="startDecision()">开始做购买决策 →</button>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="kicker">为什么不是普通导购</div>
+            <div class="stat"><div class="icon">1</div><div><b>先判断“能不能用”</b><span>环境、尺寸、电路、兼容性先于参数排名。</span></div></div>
+            <div class="stat"><div class="icon">2</div><div><b>只保留少量候选</b><span>不扔给你 20 个链接，而是给清晰取舍。</span></div></div>
+            <div class="stat"><div class="icon">3</div><div><b>证据透明</b><span>告诉你结论来自哪里，以及还有什么不确定。</span></div></div>
+          </div>
+        </div>
+        <div class="scenarios">
+          <div class="section-head"><div><h2>从真实场景开始</h2><p>不是从商品列表开始。</p></div></div>
+          <div class="scenario-grid">
+            <div class="scenario"><div class="icon">⌂</div><h3>第一次买家电</h3><p>“我不懂参数，只知道预算和使用场景。”</p></div>
+            <div class="scenario"><div class="icon">≋</div><h3>比较两个商品</h3><p>上传两个链接，让 Agent 判断差价到底值不值。</p></div>
+            <div class="scenario"><div class="icon">⌁</div><h3>预算有限怎么选</h3><p>结合二手接受度、大促时机和总拥有成本。</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="decision" class="page">
+        <div class="workspace">
+          <aside class="chat">
+            <div class="chat-head"><b>即热式热水器决策</b><span id="statusText">正在收集关键条件</span></div>
+            <div class="messages" id="messages">
+              <div class="msg user">刚搬家，预算 800，想买一台即热式热水器，两个人用。</div>
+              <div class="msg ai">我先不急着推荐型号。即热式热水器对家庭电路条件比较敏感。你在广州、两个人用这一点我已经记下。先确认两个关键条件：热水器支路线径是多少？空开是多少 A？</div>
+            </div>
+            <div class="chat-input"><input id="chatInput" value="线是2.5平方，空开C20"/><button class="primary" onclick="submitCondition()">发送</button></div>
+          </aside>
+
+          <div class="workboard">
+            <div class="mobile-note alert warn">移动端会改为“对话 → 结构化结果卡片”纵向流，而不是左右分栏。</div>
+            <div class="panel">
+              <div class="section-head"><div><div class="kicker">Requirement profile</div><h3>你的需求</h3></div><span class="pill" id="reqProgress">已完成 72%</span></div>
+              <div class="progress"><i id="prog"></i></div>
+              <div class="req-grid" style="margin-top:14px">
+                <div class="req-item"><span>预算</span><b>¥500–800</b></div>
+                <div class="req-item"><span>使用人数</span><b>2 人</b></div>
+                <div class="req-item"><span>地区</span><b>广州</b></div>
+                <div class="req-item"><span>核心诉求</span><b>性价比 / 冬季够热</b></div>
+                <div class="req-item"><span>安装空间</span><b>较小</b></div>
+                <div class="req-item" id="electricReq"><span>电路条件</span><b style="color:#a96613">待确认</b></div>
+              </div>
+            </div>
+
+            <div class="panel" id="riskPanel">
+              <div class="kicker">Compatibility check</div><h3>使用条件检查</h3>
+              <div class="alert good">✓ <div><b>预算匹配</b><br/>目前主流 5500W 入门至中端机型可覆盖。</div></div>
+              <div class="alert warn">! <div><b>冬季加热能力需重点关注</b><br/>广州冬季通常可用，但仍应关注流量与功率组合。</div></div>
+              <div class="alert warn" id="electricAlert">? <div><b>电路条件尚未确认</b><br/>确认线径与空开后，才能排除不适配高功率机型。</div></div>
+            </div>
+
+            <div class="panel" id="researchPanel" style="display:none">
+              <div class="section-head"><div><div class="kicker">Research</div><h3>候选商品</h3></div><span class="pill">仅展示 Top 3</span></div>
+              <div class="products">
+                <div class="product"><div class="thumb">Product A</div><span class="score">适配度 92%</span><h4>美的 X5 · 5500W</h4><div class="price">¥699</div><ul><li>符合电路约束</li><li>恒温表现较稳</li><li>售后覆盖较广</li></ul><button class="secondary" onclick="showCompare()">加入对比</button></div>
+                <div class="product"><div class="thumb">Product B</div><span class="score">适配度 84%</span><h4>海尔 U3 · 5500W</h4><div class="price">¥749</div><ul><li>安装更省心</li><li>价格略高</li><li>综合稳定性好</li></ul><button class="secondary" onclick="showCompare()">加入对比</button></div>
+                <div class="product"><div class="thumb">Product C</div><span class="score" style="background:#fff0f0;color:#8d3131">适配度 58%</span><h4>某品牌 Pro · 7000W</h4><div class="price">¥629</div><ul><li>纸面参数高</li><li>价格便宜</li><li>当前电路条件不适合</li></ul><button class="secondary" onclick="showCompare()">查看原因</button></div>
+              </div>
+            </div>
+
+            <div class="panel" id="comparePanel" style="display:none">
+              <div class="kicker">Compare</div><h3>为什么 A 更适合你？</h3>
+              <table class="compare">
+                <tr><th>维度</th><th>美的 X5</th><th>海尔 U3</th><th>某品牌 Pro</th></tr>
+                <tr><td>适配度</td><td><b>92%</b></td><td>84%</td><td>58%</td></tr>
+                <tr><td>参考价</td><td>¥699</td><td>¥749</td><td>¥629</td></tr>
+                <tr><td>功率</td><td>5500W</td><td>5500W</td><td>7000W</td></tr>
+                <tr><td>当前电路适配</td><td>✓</td><td>✓</td><td style="color:#a53c3c">✕</td></tr>
+                <tr><td>售后</td><td>优</td><td>优</td><td>中</td></tr>
+                <tr><td>结论</td><td><b>最推荐</b></td><td>更省心但更贵</td><td>不建议</td></tr>
+              </table>
+              <div class="actionbar"><button class="primary" onclick="showReport()">生成最终购买建议</button><button class="secondary">继续问 AI</button></div>
+            </div>
+
+            <div id="reportPanel" class="report" style="display:none">
+              <div class="winner"><div><div class="kicker">Final recommendation</div><h3 style="font-size:24px;margin:6px 0">最推荐：美的 X5 · 5500W</h3><span class="badge">可以买，但建议 ≤ ¥699 入手</span></div><div><div class="bigscore">92%</div><div style="font-size:12px;color:#69707d;text-align:right">适配度</div></div></div>
+              <div class="twocol">
+                <div class="mini"><h4>为什么适合你</h4><p>预算匹配、2 人使用足够、当前电路约束下更稳妥，而且你优先重视性价比而不是品牌溢价。</p></div>
+                <div class="mini"><h4>你需要接受的缺点</h4><p>安装辅材可能产生额外费用；如果你对大水量非常敏感，5500W 的体验上限需要接受。</p></div>
+                <div class="mini"><h4>为什么不是 B</h4><p>B 更省心，但多出的约 ¥50 对你当前需求带来的边际价值不大。</p></div>
+                <div class="mini"><h4>为什么不选 C</h4><p>7000W 看起来参数更高且更便宜，但与当前 2.5mm² / C20 条件不匹配，不能只看纸面参数。</p></div>
+              </div>
+              <div class="actionbar"><button class="primary">收藏这个方案</button><button class="secondary">再比较一款</button><button class="secondary">我已经买了</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+<script>
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+function startDecision(btn){
+  showPage('decision',btn);
+}
+function addMsg(cls,text){
+  const d=document.createElement('div'); d.className='msg '+cls+' fade'; d.textContent=text;
+  document.getElementById('messages').appendChild(d);
+  d.scrollIntoView({behavior:'smooth'});
+}
+function submitCondition(){
+  const input=document.getElementById('chatInput');
+  if(!input.value.trim()) return;
+  addMsg('user',input.value.trim());
+  setTimeout(()=>{
+    addMsg('ai','收到。2.5mm² 支线 + C20 是一个重要约束。我会优先筛选更稳妥的 5500W 方案，不把 7000W 作为默认推荐。下面开始研究候选商品和实际风险。');
+    document.getElementById('electricReq').innerHTML='<span>电路条件</span><b>2.5mm² / C20</b>';
+    document.getElementById('electricAlert').className='alert bad fade';
+    document.getElementById('electricAlert').innerHTML='✕ <div><b>不建议默认选择 7000W</b><br/>基于当前已知条件，优先筛选 5500W 级别；最终安装仍需专业电工确认。</div>';
+    document.getElementById('reqProgress').textContent='已完成 100%';
+    document.getElementById('prog').style.width='100%';
+    document.getElementById('statusText').textContent='正在研究候选商品';
+    document.getElementById('researchPanel').style.display='block';
+    document.getElementById('researchPanel').classList.add('fade');
+  },350);
+  input.value='';
+}
+function showCompare(){
+  document.getElementById('comparePanel').style.display='block';
+  document.getElementById('comparePanel').classList.add('fade');
+  document.getElementById('comparePanel').scrollIntoView({behavior:'smooth'});
+  document.getElementById('statusText').textContent='正在比较候选商品';
+}
+function showReport(){
+  document.getElementById('reportPanel').style.display='block';
+  document.getElementById('reportPanel').classList.add('fade');
+  document.getElementById('reportPanel').scrollIntoView({behavior:'smooth'});
+  document.getElementById('statusText').textContent='购买建议已生成';
+  addMsg('ai','我已经把最终建议整理成右侧的购买报告。你可以继续问“为什么不是 B”、修改预算，或者再加一个商品进来比较。');
+}
+</script>
+</body>
+</html>
